@@ -1,0 +1,55 @@
+digraph sample {
+  graph [fontname = "monospace", fontsize = 10, ranksep = 1, nodesep = 1];
+  node  [fontname = "monospace", fontsize = 10];
+  edge  [fontname = "monospace", fontsize = 10];
+
+  // node
+  node             [shape = record];
+  membership       [label = "{会員|名前\l生年月日\l入会日\l会員番号\l住所\l|登録情報の変更\l}"];
+  rental           [label = "{貸出|貸出日\l貸出期間\l金額\l|作品の貸出\l}"];
+  net_rental       [label = "{ネット貸出||作品の貸出\l}"];
+  rental_substance [label = "{貸し出し実体|貸出番号\l媒体\l|登録情報の変更\l}"];
+  goods            [label = "{作品|作品名\l時間\l監督\l出演者\l|登録情報の変更\l}"];
+
+  // edge
+  membership       -> rental [dir = none, headlabel = "貸出\n1",       label = "借りている", taillabel = "借主\n0..*",       labeldistance = 2];
+  membership       -> rental [dir = none, headlabel = "過去の貸出\n1", label = "借りた",     taillabel = "過去の借主\n0..*", labeldistance = 1.2];
+  rental_substance -> goods  [dir = none, headlabel = "仕様\n1", taillabel = "棚に置かれた実体\n0..*", labeldistance = 1.2];
+
+  edge [arrowhead = onormal];
+  net_rental -> rental;
+
+  edge                       [arrowhead = odiamond];
+  rental_substance -> rental [headlabel = "貸出先\n0..*", taillabel = "貸出対象\n1..*", labeldistance = 3];
+
+  // rank
+  {rank = same; rental; rental_substance}
+  {rank = same; net_rental; goods}
+
+  // legend
+  subgraph cluster_legend {
+    label = "凡例";
+
+    // node
+    node   [shape = record];
+    class1 [label = "{クラス1|メンバa\l|メソッドx\l}"];
+    class2 [label = "{クラス2|メンバb\l|メソッドy\l}"];
+    class3 [label = "{クラス3|メンバc\l|メソッドz\l}"];
+
+    // edge
+    edge             [arrowhead = none];
+    class1 -> class3 [dir = none, label = "関連名", taillabel = "ロール名\ni..j(多重度)", labeldistance = 2];
+
+    edge             [arrowhead = none];
+    class2 -> class1 [arrowtail     = onormal,
+                      arrowhead     = now,
+                      label         = "継承",
+                      headlabel     = "サブクラス",
+                      taillabel     = "スーパークラス",
+                      labeldistance = 2];
+
+    edge             [arrowhead = odiamond];
+    class2 -> class3 [label = "集約"];
+  }
+}
+
