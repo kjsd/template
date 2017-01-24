@@ -2,22 +2,21 @@
 #
 # @brief Makefile for this component.
 #
-# @author Kenji MINOURA / kenji@kandj.org
+# @author Kenji MINOURA / info@kandj.org
 #
-# Copyright (c) 2012 K&J Software Design, Corp. All rights reserved.
+# Copyright (c) 2017 K&J Software Design Corp. All rights reserved.
 
 TARGET_NAME = sample
 # EXE, LIB
-TARGET_TYPE = EXE
-TARGET_MAJOR_VERSION = 1
-TARGET_MINOR_VERSION = 0
+TARGET_TYPE = LIB
+TARGET_MAJOR_VERSION = 0
+TARGET_MINOR_VERSION = 1
 TARGET_PATCH_LEVEL = 0
 
 SRCDIR = ./src
 INCDIR = ./include
 TESTDIR = ./test
 DOCDIR = ./doc
-BINDIR = ./bin
 
 PREFIX = /usr/local
 CD = cd
@@ -30,7 +29,6 @@ RM = rm -f
 FIND = find
 TOUCH = touch
 XARGS = xargs
-TAGS = etags
 INSTALL = install
 UNAME = uname
 LDCONFIG = ldconfig
@@ -40,13 +38,13 @@ DOXYGEN_CFG = $(DOCDIR)/doxygen.cfg
 DOXYGEN_STY = $(DOCDIR)/doxygen.sty
 SVN_STY = $(DOCDIR)/svn.sty
 DOXYGEN_LATEXDIR = $(DOCDIR)/latex
-TAGS_FILE = ./TAGS
 DEPEND_CC = $(CC) -MM -w
 DEPEND_CXX = $(CXX) -MM -w
 DEPEND_FILE = .depend
 
 # PLATFORM contains the target os for which the package is executed.
-PLATFORM = $(shell $(UNAME))
+#PLATFORM = $(shell $(UNAME))
+PLATFORM = Linux
 
 # Defines
 DEFINES += 
@@ -69,15 +67,15 @@ endif
 
 # The Compiler shall use EXT_LIBDIR as a library dir (-L)
 EXT_LIBDIR =
-EXT_LIBDIR_TEST = $(BINDIR)
+EXT_LIBDIR_TEST =
 
 # The Compiler shall use EXT_INCDIR as an include dir (-I)
-EXT_INCDIR =
+EXT_INCDIR = 
 EXT_INCDIR_TEST =
 
 # The Compiler shall use EXT_LIB as a library (-l)
-EXT_LIB =
-EXT_LIB_TEST = $(TARGET_NAME) cppunit boost_filesystem
+EXT_LIB = crypto
+EXT_LIB_TEST = $(TARGET_NAME) crypto cppunit boost_filesystem
 
 # The "install" target shall install binaries (like executables, no libraries)
 # to INSTALL_BIN
@@ -101,14 +99,14 @@ ARCH = i386
 S = $(SRCDIR)
 H = $(INCDIR)
 T = $(TESTDIR)
-VPATH = $(S) $(T) $(H) $(BINDIR)
+VPATH = $(S) $(T) $(H)
 
-HEADERS = $(shell $(FIND) $(H) -name "*.h" -or -name "*.hpp" -exec basename {} \;)
+HEADERS = $(wildcard $(S)/*.h) $(wildcard $(S)/*.hpp)
 
-SRC_C = $(shell $(FIND) $(S) -name "*.c" -exec basename {} \;)
-SRC_C_TEST = $(shell $(FIND) $(T) -name "*.c" -exec basename {} \;)
-SRC_CXX = $(shell $(FIND) $(S) -name "*.cpp" -exec basename {} \;)
-SRC_CXX_TEST = $(shell $(FIND) $(T) -name "*.cpp" -exec basename {} \;)
+SRC_C = $(wildcard $(S)/*.c)
+SRC_C_TEST = $(wildcard $(T)/*.c)
+SRC_CXX = $(wildcard $(S)/*.cpp)
+SRC_CXX_TEST = $(wildcard $(T)/*.cpp)
 
 SRCS = $(SRC_C) $(SRC_C_TEST) $(SRC_CXX) $(SRC_CXX_TEST)
 
@@ -192,7 +190,7 @@ LDFLAGS_TEST += $(addprefix -L, $(EXT_LIBDIR_TEST)) $(addprefix -l, $(EXT_LIB_TE
 
 # ----------------------------------------------------------------------------
 
-.PHONY: all release test clean doc install tags depend
+.PHONY: all release test clean doc install depend
 
 # ------------- make interface ------------------------------------------
 ALL = $(TARGET) $(TARGET_SO) $(TARGET_LIB)
@@ -209,32 +207,31 @@ include $(DEPEND_FILE)
 endif
 
 $(OBJ_C_EXE): %.o: %.c
-	$(CC) $(CFLAGS) -c -o $(BINDIR)/$@ $<
+	$(CC) $(CFLAGS) -c -o $@ $<
 $(OBJ_C_LIB): %.o: %.c
-	$(CC) $(CFLAGS_LIB) -c -o $(BINDIR)/$@ $<
+	$(CC) $(CFLAGS_LIB) -c -o $@ $<
 $(OBJ_C_TEST): %.o: %.c
-	$(CC) $(CFLAGS_TEST) -c -o $(BINDIR)/$@ $<
+	$(CC) $(CFLAGS_TEST) -c -o $@ $<
 $(OBJ_CXX_EXE): %.o: %.cpp
-	$(CXX) $(CXXFLAGS) -c -o $(BINDIR)/$@ $<
+	$(CXX) $(CXXFLAGS) -c -o $@ $<
 $(OBJ_CXX_LIB): %.o: %.cpp
-	$(CXX) $(CXXFLAGS_LIB) -c -o $(BINDIR)/$@ $<
+	$(CXX) $(CXXFLAGS_LIB) -c -o $@ $<
 $(OBJ_CXX_TEST): %.o: %.cpp
-	$(CXX) $(CXXFLAGS_TEST) -c -o $(BINDIR)/$@ $<
+	$(CXX) $(CXXFLAGS_TEST) -c -o $@ $<
 
 %.a: $(OBJ)
-	$(AR) rcsv $(BINDIR)/$@ $(addprefix $(BINDIR)/, $(OBJ))
+	$(AR) rcsv $@ $(OBJ)
 
 $(TARGET): $(OBJ)
-	$(LD) -o $(BINDIR)/$(TARGET)  $(addprefix $(BINDIR)/, $(OBJ)) $(LDFLAGS)
+	$(LD) -o $(TARGET)  $(OBJ) $(LDFLAGS)
 
 $(TARGET_SO): $(OBJ)
-	$(LD) -o $(BINDIR)/$(TARGET_SO)  $(addprefix $(BINDIR)/, $(OBJ)) $(LDFLAGS_LIB)
-	($(CD) $(BINDIR); \
-	ln -fs $(TARGET_SO) $(TARGET_COMPAT); \
-	ln -fs $(TARGET_COMPAT) $(TARGET_SONAME))
+	$(LD) -o $(TARGET_SO)  $(OBJ) $(LDFLAGS_LIB)
+	ln -fs $(TARGET_SO) $(TARGET_COMPAT)
+	ln -fs $(TARGET_COMPAT) $(TARGET_SONAME)
 
 $(ALL_TEST): $(ALL) $(OBJ_TEST)
-	$(LD) -o $(BINDIR)/$(ALL_TEST) $(addprefix $(BINDIR)/, $(OBJ_TEST)) $(LDFLAGS_TEST) 
+	$(LD) -o $(ALL_TEST) $(OBJ_TEST) $(LDFLAGS_TEST)
 
 doc: $(DOXYGEN_CFG)
 	$(DOXYGEN) $(DOXYGEN_CFG)
@@ -243,16 +240,11 @@ doc: $(DOXYGEN_CFG)
 
 clean:
 	for i in $(ALL) $(ALL_TEST) $(OBJ) $(OBJ_TEST) $(DEPEND_FILE) *~; do \
-		$(FIND) -name $$i -exec $(RM) {} \; ;\
+		$(RM) $$i ;\
 	done
 ifeq ($(TARGET_TYPE), LIB)
-	$(RM) $(BINDIR)/$(TARGET_SONAME) $(BINDIR)/$(TARGET_COMPAT)
+	$(RM) $(TARGET_SONAME) $(TARGET_COMPAT)
 endif
-
-tags: $(TAGS_FILE)
-
-$(TAGS_FILE): $(SRCS)
-	$(FIND) . -regex '.*\.\(cpp\|c\|h\)' -print | $(XARGS) $(TAGS)
 
 install: install-etc install-header install-lib install-target
 
@@ -290,14 +282,14 @@ $(DEPEND_FILE): $(SRCS)
 	@$(RM) $(DEPEND_FILE)
 	@$(TOUCH) $(DEPEND_FILE)
 	@for i in $(SRC_C); do \
-		$(FIND) $(S) -name $$i -exec $(DEPEND_CC) $(CFLAGS) {} \; >> $(DEPEND_FILE); \
+		$(DEPEND_CC) $(CFLAGS) >> $(DEPEND_FILE); \
 	done
 	@for i in $(SRC_C_TEST); do \
-		$(FIND) $(T) -name $$i -exec $(DEPEND_CC) $(CFLAGS_TEST) {} \; >> $(DEPEND_FILE); \
+		$(DEPEND_CC) $(CFLAGS_TEST) $$i >> $(DEPEND_FILE); \
 	done
 	@for i in $(SRC_CXX); do \
-		$(FIND) $(S) -name $$i -exec $(DEPEND_CXX) $(CXXFLAGS) {} \; >> $(DEPEND_FILE); \
+		$(DEPEND_CXX) $(CXXFLAGS) $$i >> $(DEPEND_FILE); \
 	done
 	@for i in $(SRC_CXX_TEST); do \
-		$(FIND) $(T) -name $$i -exec $(DEPEND_CXX) $(CXXFLAGS_TEST) {} \; >> $(DEPEND_FILE); \
+		$(DEPEND_CXX) $(CXXFLAGS_TEST) $$i >> $(DEPEND_FILE); \
 	done
