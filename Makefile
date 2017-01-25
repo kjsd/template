@@ -242,9 +242,7 @@ doc: $(DOXYGEN_CFG)
 	($(CD) $(DOXYGEN_LATEXDIR) && make && $(DVIPDFM) refman)
 
 clean:
-	for i in $(ALL) $(ALL_TEST) $(OBJ) $(OBJ_TEST) $(DEPEND_FILE) *~; do \
-		$(RM) $$i ;\
-	done
+	$(RM) $(ALL) $(ALL_TEST) $(OBJ) $(OBJ_TEST) $(DEPEND_FILE)
 ifeq ($(TARGET_TYPE), LIB)
 	$(RM) $(TARGET_SONAME) $(TARGET_COMPAT)
 endif
