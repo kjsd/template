@@ -1,4 +1,6 @@
 .DS_Store
+.depend
+
 # Compiled Object files
 *.slo
 *.lo
@@ -11,6 +13,7 @@
 
 # Compiled Dynamic libraries
 *.so
+*.so.*
 *.dylib
 *.dll
 

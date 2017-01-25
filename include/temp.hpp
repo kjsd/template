@@ -1,18 +1,14 @@
-﻿/**
- * @file temp.hpp
+/**
+ * @version $Id: temp.hpp 33 2008-12-25 06:42:26Z Administrator $
  *
  * @brief Sample Header
  *
  * This header file declares the sample functions that are providede
  * by the Sample Project for C++.
  *
- * @htmlonly
- * @version $Id: temp.hpp 33 2008-12-25 06:42:26Z Administrator $
- *
- * @author Kenji MINOURA / kenji@kandj.org
+ * @author Kenji MINOURA / info@kandj.org
  *
  * Copyright (c) 2008 K&J Software Design, Ltd All rights reserved.
- * @endhtmlonly
  *
  ***********************************************************************/
 #ifndef TEMP_HPP
