@@ -43,8 +43,11 @@ DEPEND_CXX = $(CXX) -MM -w
 DEPEND_FILE = .depend
 
 # PLATFORM contains the target os for which the package is executed.
-#PLATFORM = $(shell $(UNAME))
+PLATFORM = $(shell $(UNAME))
+
+ifeq ($(findstring CYGWIN, $(PLATFORM)), CYGWIN)
 PLATFORM = Linux
+endif
 
 # Defines
 DEFINES += 
@@ -74,8 +77,8 @@ EXT_INCDIR =
 EXT_INCDIR_TEST =
 
 # The Compiler shall use EXT_LIB as a library (-l)
-EXT_LIB = crypto
-EXT_LIB_TEST = $(TARGET_NAME) crypto cppunit boost_filesystem
+EXT_LIB =
+EXT_LIB_TEST = $(TARGET_NAME) cppunit
 
 # The "install" target shall install binaries (like executables, no libraries)
 # to INSTALL_BIN
@@ -282,7 +285,7 @@ $(DEPEND_FILE): $(SRCS)
 	@$(RM) $(DEPEND_FILE)
 	@$(TOUCH) $(DEPEND_FILE)
 	@for i in $(SRC_C); do \
-		$(DEPEND_CC) $(CFLAGS) >> $(DEPEND_FILE); \
+		$(DEPEND_CC) $(CFLAGS) $$i >> $(DEPEND_FILE); \
 	done
 	@for i in $(SRC_C_TEST); do \
 		$(DEPEND_CC) $(CFLAGS_TEST) $$i >> $(DEPEND_FILE); \
